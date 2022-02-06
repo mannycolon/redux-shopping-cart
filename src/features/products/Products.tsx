@@ -1,18 +1,28 @@
-import React, { useEffect, useState } from "react";
-import { getProducts, Product } from "../../app/api";
+import React, { useEffect } from "react";
+import { useAppSelector, useAppDispatch } from '../../app/hooks';
+import { receivedProducts } from "./productsSlice";
+import { getProducts } from "../../app/api";
+import { addToCart } from "../cart/cartSlice";
 import styles from "./Products.module.css";
 
 export function Products() {
-  const [products, setProducts] = useState<Product[]>([]);
+  // const [products, setProducts] = useState<Product[]>([]);
+  // useEffect(() => {
+  //   getProducts().then((products) => {
+  //     setProducts(products);
+  //   });
+  // }, []);
+  const dispatch = useAppDispatch()
+  const products = useAppSelector(state => state.products.products)
   useEffect(() => {
     getProducts().then((products) => {
-      setProducts(products);
+      dispatch(receivedProducts(products))
     });
-  }, []);
+  }, [])
   return (
     <main className="page">
       <ul className={styles.products}>
-        {products.map((product) => (
+        {Object.values(products).map((product) => (
           <li key={product.id}>
             <article className={styles.product}>
               <figure>
@@ -25,7 +35,9 @@ export function Products() {
                 <h1>{product.name}</h1>
                 <p>{product.description}</p>
                 <p>${product.price}</p>
-                <button>Add to Cart 🛒</button>
+                <button onClick={() => dispatch(addToCart(product.id))}>
+                  Add to Cart 🛒
+                </button>
               </div>
             </article>
           </li>
